@@ -1,7 +1,7 @@
 // 主应用入口
-import { HomePage } from 'HomePage.js';
-import { SettingsPage } from 'SettingsPage.js';
-import { AppearancePage } from 'AppearancePage.js';
+import { HomePage } from './HomePage.js';
+import { SettingsPage } from './SettingsPage.js';
+import { AppearancePage } from './AppearancePage.js';
 
 const { createApp, ref } = Vue;
 
@@ -260,5 +260,6 @@ const App = {
 
 // 创建并挂载 Vue 应用
 createApp(App).mount('#app');
+
 
 
