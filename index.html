@@ -4,12 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI 聊天手机原型</title>
+    
+    <!-- ✅ 修正点1：原本是 css/main.css，现在去掉了 css/，因为他们在同一个屋檐下 -->
     <link rel="stylesheet" href="main.css">
-    <!-- 用户自定义 CSS 标签，由外观设置页面动态写入 -->
+    
     <style id="custom-user-css"></style>
+</head>
+
+<body>
+    <!-- ✅ 修正点2：加上了 body 标签，浏览器终于知道要把画面画在哪了 -->
+    
     <div id="app"></div>
+
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    
+    <!-- ✅ 修正点3：原本是 js/app.js，现在去掉了 js/ -->
     <script type="module" src="app.js"></script>
 </body>
 </html>
-
