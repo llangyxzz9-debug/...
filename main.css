@@ -1,0 +1,1147 @@
+/* ================= 全局变量 ================= */
+:root {
+    --bg-color: #f0f2f5;
+    --phone-bg: #fff0f5;
+    --phone-border: #333;
+    --primary-color: #ff9a9e;
+    --secondary-color: #fad0c4;
+    --text-color: #4a4a4a;
+    --glass-bg: rgba(255, 255, 255, 0.6);
+    --glass-border: rgba(255, 255, 255, 0.8);
+    --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    --radius-lg: 24px;
+    --radius-md: 16px;
+    --radius-sm: 12px;
+    --radius-full: 50%;
+}
+
+/* ================= 基础样式 ================= */
+* {
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--bg-color);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ================= 手机外壳 ================= */
+.phone-case {
+    width: 360px;
+    height: 720px;
+    background-color: var(--phone-border);
+    border-radius: 40px;
+    padding: 12px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.screen {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #fff1eb 0%, #ace0f9 100%);
+    border-radius: 30px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ================= 主页样式 ================= */
+.home-page {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    /* 保持内容紧凑：不要为了填满 100vh 把间距拉大 */
+    justify-content: flex-start;
+    align-content: flex-start;
+
+    padding: 40px 20px 20px;
+    gap: 20px;
+
+    height: 100%;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.home-page::-webkit-scrollbar {
+    display: none;
+}
+
+/* 顶部状态栏 */
+.section-top {
+    flex: 0 0 auto;
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 120px;
+}
+
+/* ================= 第一部分时间框：双层图片上传 =================
+   层级：背景图(最底) < 时间文字(中间) < 右侧装饰图(最顶)
+*/
+.section-top.time-box {
+    position: relative; /* 父容器作为绝对定位基准 */
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
+}
+
+/* 时间文字：中间层，防止被背景吞没 */
+.section-top.time-box .date-display,
+.section-top.time-box .time-display {
+    position: relative;
+    z-index: 2;
+}
+
+/* 右侧装饰图区域：点击区域 B，强制贴右 */
+.time-box-deco {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 35%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3; /* 最顶层 */
+    cursor: pointer;
+}
+
+/* 内部图片：必须被限制在右侧区域内，绝不撑破 */
+.time-box-deco-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+/* 删除叉：右上角 */
+.time-box-deco-remove {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    border: none;
+    background: rgba(0, 0, 0, 0.45);
+    color: #fff;
+    line-height: 22px;
+    padding: 0;
+    cursor: pointer;
+}
+
+.date-display {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.time-display {
+    font-size: 42px;
+    font-weight: 800;
+    color: var(--text-color);
+    line-height: 1;
+}
+
+/* 信息与功能区 */
+.section-middle-top {
+    flex: 0 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    align-items: center;
+}
+
+.info-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 8px;
+}
+
+.editable-text {
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.editable-text:hover {
+    opacity: 0.7;
+}
+
+.big-text {
+    font-size: 22px;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.normal-text {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.4;
+}
+
+.profile-card {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 999px; /* 椭圆胶囊形 */
+    padding: 5px 14px 5px 6px; /* 上 右 下 左：左侧内边距更小让头像更靠近边框 */
+    display: flex;
+    align-items: center;
+    gap: 6px; /* 头像和文字之间的间距 */
+    margin-top: 8px;
+    margin-left: -8px; /* 整体往左移动（第168行：调整此值控制框框左移程度） */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.profile-avatar {
+    width: 28px; /* 头像大小（第176行：调整此值控制头像尺寸） */
+    height: 28px;
+    border-radius: var(--radius-full);
+    background-color: #ddd;
+    background-image: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    /* 头像距离左边框的距离由 .profile-card 的 padding-left 控制（第165行左侧值） */
+}
+
+.profile-text {
+    font-size: 12px;
+    font-weight: 400; /* 文字不加粗 */
+    color: var(--text-color);
+}
+
+/* 网格按钮 */
+.grid-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 16px 12px;
+    max-width: 140px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.grid-btn {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.1s;
+    aspect-ratio: auto;
+    padding: 0;
+}
+
+.grid-btn:active {
+    transform: scale(0.95);
+    background: transparent;
+}
+
+.grid-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    margin-bottom: 6px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.grid-label {
+    font-size: 11px;
+    color: #333;
+    font-weight: 500;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+/* 媒体展示区 */
+.section-middle-bottom {
+    flex: 0 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+
+    /* 给 dock 预留空间，但不把内容区“撑开” */
+    padding-bottom: 90px;
+    margin-bottom: 0;
+}
+
+/* 音乐播放器 - 极简白色黑胶风格 */
+.music-player {
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: visible;
+    height: 140px;
+}
+
+.vinyl-record {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: #fcfcfc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #dddddd;
+    animation: spin 10s linear infinite;
+    animation-play-state: paused;
+    cursor: pointer;
+    position: relative;
+    box-shadow: none;
+}
+
+/* 极淡的纹路 - 使用伪元素 */
+.vinyl-record::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    background: 
+        /* 外侧双线 - 靠近外边缘 */
+        radial-gradient(circle, transparent 84%, #e0e0e0 84.3%, #e0e0e0 84.8%, transparent 85.1%, transparent 86%, #e0e0e0 86.3%, #e0e0e0 86.8%, transparent 87.1%),
+        /* 内侧双线 - 靠近封面 */
+        radial-gradient(circle, transparent 64%, #e0e0e0 64.3%, #e0e0e0 64.8%, transparent 65.1%, transparent 66%, #e0e0e0 66.3%, #e0e0e0 66.8%, transparent 67.1%),
+        /* 极淡的稀疏纹路 */
+        radial-gradient(circle, transparent 72%, rgba(230,230,230,0.25) 72.3%, transparent 72.6%),
+        radial-gradient(circle, transparent 78%, rgba(230,230,230,0.2) 78.3%, transparent 78.6%);
+    pointer-events: none;
+}
+
+.vinyl-record.playing {
+    animation-play-state: running;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.vinyl-center {
+    width: 62%;
+    height: 62%;
+    border-radius: 50%;
+    background-color: #ff9a9e;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="%23ff9a9e" width="100" height="100"/><text x="50" y="55" font-size="40" text-anchor="middle" fill="white">🎵</text></svg>');
+    background-size: cover;
+    background-position: center;
+    border: 3px solid #e8eaeb;
+    position: relative;
+    z-index: 1;
+}
+
+/* 装饰图片区域（第三部分右侧）：完全隐形容器 + 支持透明底异形图 */
+.deco-image-area {
+    /* 容器本身完全不画任何东西 */
+    background: transparent;
+    border: none;
+    border-radius: 22px; /* 仅用于点击区域手感/一致性，不会产生可见框 */
+
+    cursor: pointer;
+
+    /* 大图保持比例不变，不裁切 */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+
+    /* 不裁切异形透明边缘 */
+    overflow: visible;
+
+    width: 140px;
+    height: 140px;
+    margin: 0 auto;
+}
+
+/* 不显示任何提示/加号/文字 */
+.deco-image-area::after {
+    display: none;
+}
+
+.deco-image-area.has-image::after {
+    display: none;
+}
+
+/* 底部 Dock 栏 */
+.dock-bar {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(15px);
+    border-radius: 35px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    z-index: 100;
+}
+
+.dock-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    cursor: pointer;
+    transition: transform 0.2s;
+    color: #555;
+}
+
+.dock-item:active {
+    transform: scale(0.9);
+}
+
+.dock-icon {
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.dock-label {
+    display: none; /* 隐藏文字 */
+}
+
+/* ================= API 设置页面样式 ================= */
+.settings-page {
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    z-index: 200;
+    animation: slideIn 0.3s ease-out;
+    overflow-x: hidden;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+.settings-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-top: 10px;
+}
+
+.back-btn {
+    font-size: 24px;
+    margin-right: 15px;
+    cursor: pointer;
+    color: #333;
+    background: none;
+    border: none;
+    padding: 5px;
+}
+
+.settings-title {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.settings-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.settings-content::-webkit-scrollbar {
+    display: none;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.form-input {
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #eee;
+    background: #f9f9f9;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.form-input:focus {
+    border-color: var(--primary-color);
+    background: #fff;
+}
+
+.input-group {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.input-group .form-input {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-secondary {
+    background: var(--secondary-color);
+    color: #555;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.btn-primary:active,
+.btn-secondary:active {
+    opacity: 0.8;
+}
+
+.slider-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.slider {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 6px;
+    background: #ddd;
+    border-radius: 5px;
+    outline: none;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.slider-value {
+    font-weight: bold;
+    color: var(--primary-color);
+    min-width: 30px;
+    text-align: right;
+}
+
+/* 隐藏文件输入 */
+.file-input {
+    display: none;
+}
+
+/* ================= 壁纸层样式 ================= */
+.wallpaper-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 0;
+}
+
+.screen.has-wallpaper .home-page {
+    background: transparent;
+}
+
+.screen.has-wallpaper .home-page > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* ================= 全屏模式样式 ================= */
+body.fullscreen-mode {
+    background: transparent;
+}
+
+body.fullscreen-mode .phone-case {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+    background: transparent;
+}
+
+body.fullscreen-mode .screen {
+    border-radius: 0;
+}
+
+body.fullscreen-mode .dock-bar {
+    border-radius: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+/* ================= 自定义图标样式 ================= */
+.custom-icon-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+/* ================= 外观设置页面样式 ================= */
+.appearance-page {
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    z-index: 200;
+    animation: slideIn 0.3s ease-out;
+    overflow-x: hidden;
+}
+
+.appearance-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-top: 10px;
+}
+
+.appearance-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.appearance-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 20px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.appearance-content::-webkit-scrollbar {
+    display: none;
+}
+
+.appearance-section {
+    background: #f9f9f9;
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.section-desc {
+    font-size: 12px;
+    color: #888;
+    margin: 0;
+}
+
+/* 上传按钮 */
+.btn-upload {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+}
+
+.btn-upload:hover {
+    opacity: 0.9;
+}
+
+.btn-upload:active {
+    transform: scale(0.98);
+}
+
+.btn-icon {
+    font-size: 16px;
+}
+
+/* 壁纸预览 */
+.wallpaper-preview {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #e8f5e9;
+    padding: 10px 14px;
+    border-radius: 10px;
+}
+
+.preview-text {
+    font-size: 13px;
+    color: #2e7d32;
+    font-weight: 500;
+}
+
+.btn-clear {
+    background: #ef5350;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.btn-clear:hover {
+    background: #e53935;
+}
+
+/* 开关样式 */
+.toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 28px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.3s;
+    border-radius: 28px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(22px);
+}
+
+.toggle-label {
+    font-size: 14px;
+    color: #666;
+}
+
+/* 图标输入组 */
+.icon-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-label {
+    font-size: 13px;
+    color: #555;
+    font-weight: 500;
+}
+
+.url-input-row {
+    display: flex;
+    gap: 8px;
+}
+
+.url-input {
+    flex: 1;
+    min-width: 0;
+}
+
+.btn-apply {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.btn-apply:hover {
+    opacity: 0.9;
+}
+
+/* 图标预览 */
+.icon-preview {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #f0f0f0;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.preview-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+/* CSS 文本框 */
+.css-textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    resize: vertical;
+    background: #fafafa;
+    color: #333;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.css-textarea::-webkit-scrollbar {
+    display: none;
+}
+
+.css-textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: #fff;
+}
+
+.css-textarea::placeholder {
+    color: #aaa;
+}
+
+/* ================= 图标设置管理器样式 ================= */
+.icon-manager-section {
+    background: #f9f9f9;
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.icon-manager-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.btn-icon-manager {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    width: 100%;
+}
+
+.btn-icon-manager:hover {
+    opacity: 0.9;
+}
+
+.btn-icon-manager:active {
+    transform: scale(0.98);
+}
+
+/* 图标管理器面板 */
+.icon-manager-panel {
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px;
+    margin-top: 10px;
+    border: 1px solid #e0e0e0;
+}
+
+.icon-manager-panel-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.btn-back-small {
+    font-size: 18px;
+    margin-right: 10px;
+    cursor: pointer;
+    color: #333;
+    background: none;
+    border: none;
+    padding: 5px;
+}
+
+.panel-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+/* 应用列表 */
+.app-icon-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 300px;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.app-icon-list::-webkit-scrollbar {
+    display: none;
+}
+
+/* 单个应用项 */
+.app-icon-item {
+    background: #f5f5f5;
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.app-icon-item-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.app-icon-preview {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.app-icon-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.app-icon-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    flex: 1;
+}
+
+.app-icon-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.app-icon-control-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.app-icon-control-row .form-input {
+    flex: 1;
+    padding: 8px 10px;
+    font-size: 12px;
+    min-width: 0;
+}
+
+.btn-upload-small {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.btn-upload-small:hover {
+    opacity: 0.9;
+}
+
+.btn-apply-small {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.btn-apply-small:hover {
+    opacity: 0.9;
+}
+
+.btn-clear-small {
+    background: #ef5350;
+    color: white;
+    border: none;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.btn-clear-small:hover {
+    background: #e53935;
+}
+
+/* 隐藏的文件输入 */
+.hidden-file-input {
+    display: none;
+}
