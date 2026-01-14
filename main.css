@@ -65,13 +65,8 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    /* 保持内容紧凑：不要为了填满 100vh 把间距拉大 */
-    justify-content: flex-start;
-    align-content: flex-start;
-
     padding: 40px 20px 20px;
-    gap: 20px;
-
+    gap: 35px;
     height: 100%;
     overflow-y: auto;
     scrollbar-width: none;
@@ -289,10 +284,7 @@ body {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 15px;
-
-    /* 给 dock 预留空间，但不把内容区“撑开” */
-    padding-bottom: 90px;
-    margin-bottom: 0;
+    margin-bottom: 90px;
 }
 
 /* 音乐播放器 - 极简白色黑胶风格 */
