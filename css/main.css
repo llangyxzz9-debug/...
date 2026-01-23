@@ -1,0 +1,4122 @@
+﻿/* ================= 全局变量 ================= */
+:root {
+    /* 更“简洁可爱”的低饱和配色（奶油白 + 雾蓝/雾紫点缀） */
+    --bg-color: #f6f7fb;
+    --phone-bg: #ffffff;
+    --phone-border: #e7e7ee;
+
+    --primary-color: #a8b8ff;   /* 雾蓝紫 */
+    --secondary-color: #cfe7ff; /* 淡雾蓝 */
+
+    --text-color: #2f2f36;
+
+    /* 玻璃拟态：更淡、更干净 */
+    --glass-bg: rgba(255, 255, 255, 0.72);
+    --glass-border: rgba(255, 255, 255, 0.85);
+
+    /* 阴影更柔 */
+    --shadow: 0 10px 28px rgba(32, 33, 48, 0.10);
+
+    --radius-lg: 26px;
+    --radius-md: 18px;
+    --radius-sm: 14px;
+    --radius-full: 50%;
+
+    /* QQ 子主题 */
+    --qq-bg: #f6f7fb;
+    --qq-surface: rgba(255, 255, 255, 0.86);
+    --qq-border: rgba(30, 30, 40, 0.08);
+    --qq-muted: rgba(40, 40, 55, 0.55);
+}
+
+/* ================= 基础样式 ================= */
+* {
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+
+    /* 避免 100vw/100dvh 在不同浏览器下造成“视口基准异常”，出现贴左上角/留白 */
+    width: 100%;
+    height: 100%;
+    min-height: 100vh;
+
+    overflow: hidden;
+    background-color: var(--bg-color);
+
+    touch-action: none;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--bg-color);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden;
+}
+
+/* Vue 根节点撑满，并居中显示手机外壳 */
+#app {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    /* 使用 margin: auto 实现更安全的居中（溢出时回退到顶部对齐） */
+    overflow-y: auto; 
+    -webkit-overflow-scrolling: touch;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ================= 手机外壳（已改为全屏无框模式） ================= */
+.phone-case {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.screen {
+    width: 100%;
+    height: 100%;
+    /* 去掉亮眼渐变，换成更干净的奶油白底 + 轻微雾感 */
+    background: radial-gradient(120% 90% at 20% 0%, rgba(168, 184, 255, 0.22) 0%, rgba(246, 247, 251, 0.95) 45%, #ffffff 100%);
+    border-radius: 0;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ================= 主页样式 ================= */
+.home-page {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 60px 20px 20px;
+    gap: 35px;
+    height: 100%;
+    overflow: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.home-page::-webkit-scrollbar {
+    display: none;
+}
+
+/* 顶部状态栏 */
+.section-top {
+    flex: 0 0 auto;
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 132px;
+}
+
+/* ================= 第一部分时间框：双层图片上传 =================
+   层级：背景图(最底) < 时间文字(中间) < 右侧装饰图(最顶)
+*/
+.section-top.time-box {
+    position: relative; /* 父容器作为绝对定位基准 */
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
+}
+
+/* 时间文字：中间层，防止被背景吞没 */
+.section-top.time-box .date-display,
+.section-top.time-box .time-display {
+    position: relative;
+    z-index: 2;
+}
+
+/* 右侧装饰图区域：点击区域 B，强制贴右 */
+.time-box-deco {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 35%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3; /* 最顶层 */
+    cursor: pointer;
+}
+
+/* 内部图片：必须被限制在右侧区域内，绝不撑破 */
+.time-box-deco-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+/* 删除叉：右上角 */
+.time-box-deco-remove {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    border: none;
+    background: rgba(0, 0, 0, 0.45);
+    color: #fff;
+    line-height: 22px;
+    padding: 0;
+    cursor: pointer;
+}
+
+.date-display {
+    font-size: 15px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.time-display {
+    font-size: 46px;
+    font-weight: 800;
+    color: var(--text-color);
+    line-height: 1;
+}
+
+/* 信息与功能区 */
+.section-middle-top {
+    flex: 0 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    align-items: center;
+}
+
+.info-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 8px;
+}
+
+.editable-text {
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.editable-text:hover {
+    opacity: 0.7;
+}
+
+.big-text {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.normal-text {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.4;
+}
+
+.profile-card {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 999px; /* 椭圆胶囊形 */
+    padding: 6px 15px 6px 7px; /* 上 右 下 左：左侧内边距更小让头像更靠近边框 */
+    display: flex;
+    align-items: center;
+    gap: 6px; /* 头像和文字之间的间距 */
+    margin-top: 9px;
+    margin-left: -8px; /* 整体往左移动（第168行：调整此值控制框框左移程度） */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.profile-avatar {
+    width: 31px; /* 头像大小（第176行：调整此值控制头像尺寸） */
+    height: 31px;
+    border-radius: var(--radius-full);
+    background-color: #ddd;
+    background-image: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    /* 头像距离左边框的距离由 .profile-card 的 padding-left 控制（第165行左侧值） */
+}
+
+.profile-text {
+    font-size: 13px;
+    font-weight: 400; /* 文字不加粗 */
+    color: var(--text-color);
+}
+
+/* 网格按钮 */
+.grid-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 18px 13px;
+    max-width: 154px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.grid-btn {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.1s;
+    aspect-ratio: auto;
+    padding: 0;
+}
+
+.grid-btn:active {
+    transform: scale(0.95);
+    background: transparent;
+}
+
+.grid-icon {
+    width: 55px;
+    height: 55px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 13px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 26px;
+    margin-bottom: 6px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.grid-label {
+    font-size: 12px;
+    color: #333;
+    font-weight: 500;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+/* 媒体展示区 */
+.section-middle-bottom {
+    flex: 0 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 110px;
+}
+
+/* 音乐播放器 - 极简白色黑胶风格 */
+.music-player {
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: visible;
+    height: 154px;
+}
+
+
+.vinyl-record {
+    width: 154px;
+    height: 154px;
+    border-radius: 50%;
+    background: #fcfcfc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #dddddd;
+    animation: spin 10s linear infinite;
+    animation-play-state: paused;
+    cursor: pointer;
+    position: relative;
+    box-shadow: none;
+}
+
+/* 极淡的纹路 - 使用伪元素 */
+.vinyl-record::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    background: 
+        /* 外侧双线 - 靠近外边缘 */
+        radial-gradient(circle, transparent 84%, #e0e0e0 84.3%, #e0e0e0 84.8%, transparent 85.1%, transparent 86%, #e0e0e0 86.3%, #e0e0e0 86.8%, transparent 87.1%),
+        /* 内侧双线 - 靠近封面 */
+        radial-gradient(circle, transparent 64%, #e0e0e0 64.3%, #e0e0e0 64.8%, transparent 65.1%, transparent 66%, #e0e0e0 66.3%, #e0e0e0 66.8%, transparent 67.1%),
+        /* 极淡的稀疏纹路 */
+        radial-gradient(circle, transparent 72%, rgba(230,230,230,0.25) 72.3%, transparent 72.6%),
+        radial-gradient(circle, transparent 78%, rgba(230,230,230,0.2) 78.3%, transparent 78.6%);
+    pointer-events: none;
+}
+
+.vinyl-record.playing {
+    animation-play-state: running;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.vinyl-center {
+    width: 62%;
+    height: 62%;
+    border-radius: 50%;
+    background-color: #ff9a9e;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="%23ff9a9e" width="100" height="100"/><text x="50" y="55" font-size="40" text-anchor="middle" fill="white">🎵</text></svg>');
+    background-size: cover;
+    background-position: center;
+    border: 3px solid #e8eaeb;
+    position: relative;
+    z-index: 1;
+}
+
+/* 装饰图片区域（第三部分右侧）：完全隐形容器 + 支持透明底异形图 */
+.deco-image-area {
+    /* 容器本身完全不画任何东西 */
+    background: transparent;
+    border: none;
+    border-radius: 22px; /* 仅用于点击区域手感/一致性，不会产生可见框 */
+
+    cursor: pointer;
+
+    /* 大图保持比例不变，不裁切 */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+
+    /* 不裁切异形透明边缘 */
+    overflow: visible;
+
+    width: 154px;
+    height: 154px;
+    margin: 0 auto;
+}
+
+/* 不显示任何提示/加号/文字 */
+.deco-image-area::after {
+    display: none;
+}
+
+.deco-image-area.has-image::after {
+    display: none;
+}
+
+/* 底部 Dock 栏 */
+.dock-bar {
+    position: absolute;
+    bottom: 24px;
+    left: 20px;
+    right: 20px;
+    height: 77px;
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    border-radius: 39px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    z-index: 100;
+}
+
+.dock-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    cursor: pointer;
+    transition: transform 0.2s;
+    color: #555;
+}
+
+.dock-item:active {
+    transform: scale(0.9);
+}
+
+.dock-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 13px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 22px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.dock-label {
+    display: none; /* 隐藏文字 */
+}
+
+/* ================= API 设置页面样式 ================= */
+.settings-page {
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    z-index: 200;
+    /* 之前是从下往上滑出（slideIn translateY），会有“上划”的眩晕感 */
+    animation: none;
+    overflow-x: hidden;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+.settings-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-top: 10px;
+}
+
+.back-btn {
+    font-size: 24px;
+    margin-right: 15px;
+    cursor: pointer;
+    color: #333;
+    background: none;
+    border: none;
+    padding: 5px;
+}
+
+.settings-title {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.settings-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.settings-content::-webkit-scrollbar {
+    display: none;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group.form-check {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.form-group.form-check input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-color);
+}
+
+.form-group.form-divider {
+    padding-top: 6px;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.form-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.form-input {
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #eee;
+    background: #f9f9f9;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.form-input:focus {
+    border-color: var(--primary-color);
+    background: #fff;
+}
+
+.form-hint {
+    font-size: 12px;
+    color: #888;
+    margin-top: 4px;
+    line-height: 1.4;
+}
+
+.form-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+.form-actions .btn-secondary {
+    padding: 8px 12px;
+    font-size: 13px;
+}
+
+.btn-secondary.danger {
+    background: #ffd1dc;
+    color: #555;
+}
+
+.input-group {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.input-group .form-input {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-secondary {
+    background: var(--secondary-color);
+    color: #555;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.btn-primary:active,
+.btn-secondary:active {
+    opacity: 0.8;
+}
+
+.slider-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.slider {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 6px;
+    background: #ddd;
+    border-radius: 5px;
+    outline: none;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.slider-value {
+    font-weight: bold;
+    color: var(--primary-color);
+    min-width: 30px;
+    text-align: right;
+}
+
+/* 隐藏文件输入 */
+.file-input {
+    display: none;
+}
+
+/* QQ Chat Settings: modal for avatar upload */
+.qq-modal-mask {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+}
+
+.qq-modal {
+    width: calc(100% - 40px);
+    max-width: 360px;
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 14px;
+    padding: 14px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.2);
+    color: #111;
+}
+
+.qq-modal-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.qq-modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.qq-modal-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 12px;
+}
+
+.qq-input {
+    flex: 1;
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    padding: 0 10px;
+    outline: none;
+    background: #fff;
+    color: #111;
+}
+
+/* ================= 壁纸层样式 ================= */
+.wallpaper-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.screen.has-wallpaper .home-page {
+    background: transparent;
+}
+
+.screen.has-wallpaper > :not(.wallpaper-layer) {
+    position: relative;
+    z-index: 1;
+}
+
+.screen.has-wallpaper .home-page > *:not(.dock-bar) {
+    position: relative;
+    z-index: 1;
+}
+
+/* ================= 移动端适配 =================
+   在手机设备上（屏幕宽度小于 768px），强制占满屏幕，
+   禁用“模拟器外壳”，改为原生流式布局。
+*/
+@media (max-width: 768px) {
+    /* 强制覆盖 .phone-case 的样式 */
+    .phone-case {
+        width: 100% !important;
+        height: 100% !important;
+        border-radius: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: transparent !important;
+        
+        /* 关键：禁用 JS 计算的缩放，让页面自适应屏幕 */
+        transform: none !important;
+        left: 0 !important;
+        top: 0 !important;
+    }
+
+    .screen {
+        border-radius: 0 !important;
+    }
+    
+    /* 调整 Dock 栏位置，适配安全区 */
+    .dock-bar {
+        position: fixed; /* 确保固定在底部 */
+        bottom: calc(24px + env(safe-area-inset-bottom, 10px)) !important;
+        left: 20px !important;
+        right: 20px !important;
+        width: auto !important;
+    }
+    
+    /* 确保 body 也是全屏 */
+    body {
+        display: block !important; /* 取消 flex 居中 */
+        width: 100% !important;
+        height: 100% !important;
+        overflow: hidden !important;
+        background-color: var(--bg-color) !important;
+    }
+
+    #app {
+        width: 100% !important;
+        height: 100% !important;
+        overflow: hidden !important;
+    }
+
+    /* 修复主页滚动 */
+    .home-page {
+        height: 100%;
+        overflow: hidden;
+        padding-bottom: 120px; /* 给 Dock 栏留出空间 */
+    }
+}
+
+/* ================= 自定义图标样式 ================= */
+.custom-icon-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+/* ================= 外观设置页面样式 ================= */
+.appearance-page {
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    z-index: 200;
+    /* 去掉从下往上滑出的动效，改为“直接进入” */
+    animation: none;
+    overflow-x: hidden;
+}
+
+.appearance-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-top: 10px;
+}
+
+.appearance-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.appearance-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 20px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.appearance-content::-webkit-scrollbar {
+    display: none;
+}
+
+.appearance-section {
+    background: #f9f9f9;
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.section-desc {
+    font-size: 12px;
+    color: #888;
+    margin: 0;
+}
+
+/* 上传按钮 */
+.btn-upload {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+}
+
+.btn-upload:hover {
+    opacity: 0.9;
+}
+
+.btn-upload:active {
+    transform: scale(0.98);
+}
+
+.btn-icon {
+    font-size: 16px;
+}
+
+/* 壁纸预览 */
+.wallpaper-preview {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #e8f5e9;
+    padding: 10px 14px;
+    border-radius: 10px;
+}
+
+.preview-text {
+    font-size: 13px;
+    color: #2e7d32;
+    font-weight: 500;
+}
+
+.btn-clear {
+    background: #ef5350;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.btn-clear:hover {
+    background: #e53935;
+}
+
+/* 开关样式 */
+.toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 28px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.3s;
+    border-radius: 28px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(22px);
+}
+
+.toggle-label {
+    font-size: 14px;
+    color: #666;
+}
+
+/* 图标输入组 */
+.icon-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-label {
+    font-size: 13px;
+    color: #555;
+    font-weight: 500;
+}
+
+.url-input-row {
+    display: flex;
+    gap: 8px;
+}
+
+.url-input {
+    flex: 1;
+    min-width: 0;
+}
+
+.btn-apply {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.btn-apply:hover {
+    opacity: 0.9;
+}
+
+/* 图标预览 */
+.icon-preview {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #f0f0f0;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.preview-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+/* CSS 文本框 */
+.css-textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    resize: vertical;
+    background: #fafafa;
+    color: #333;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.css-textarea::-webkit-scrollbar {
+    display: none;
+}
+
+.css-textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: #fff;
+}
+
+.css-textarea::placeholder {
+    color: #aaa;
+}
+
+/* ================= 图标设置管理器样式 ================= */
+.icon-manager-section {
+    background: #f9f9f9;
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.icon-manager-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.btn-icon-manager {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    width: 100%;
+}
+
+.btn-icon-manager:hover {
+    opacity: 0.9;
+}
+
+.btn-icon-manager:active {
+    transform: scale(0.98);
+}
+
+/* 图标管理器面板 */
+.icon-manager-panel {
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px;
+    margin-top: 10px;
+    border: 1px solid #e0e0e0;
+}
+
+.icon-manager-panel-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.btn-back-small {
+    font-size: 18px;
+    margin-right: 10px;
+    cursor: pointer;
+    color: #333;
+    background: none;
+    border: none;
+    padding: 5px;
+}
+
+.panel-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+/* 应用列表 */
+.app-icon-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 300px;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.app-icon-list::-webkit-scrollbar {
+    display: none;
+}
+
+/* 单个应用项 */
+.app-icon-item {
+    background: #f5f5f5;
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.app-icon-item-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.app-icon-preview {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.app-icon-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.app-icon-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    flex: 1;
+}
+
+.app-icon-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.app-icon-control-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.app-icon-control-row .form-input {
+    flex: 1;
+    padding: 8px 10px;
+    font-size: 12px;
+    min-width: 0;
+}
+
+.btn-upload-small {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.btn-upload-small:hover {
+    opacity: 0.9;
+}
+
+.btn-apply-small {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.btn-apply-small:hover {
+    opacity: 0.9;
+}
+
+.btn-clear-small {
+    background: #ef5350;
+    color: white;
+    border: none;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.btn-clear-small:hover {
+    background: #e53935;
+}
+
+/* 隐藏的文件输入 */
+.hidden-file-input {
+    display: none;
+}
+
+/* ================= 字体设置页面样式 ================= */
+.font-settings-page .setting-item {
+    background: #f9f9f9;
+    padding: 16px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.font-settings-page .setting-item label {
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+.font-url-input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #eee;
+    background: #fff;
+    font-size: 14px;
+    outline: none;
+}
+
+.font-url-input:focus {
+    border-color: var(--primary-color);
+}
+
+.setting-desc {
+    font-size: 12px;
+    color: #888;
+    margin: 0;
+}
+
+.preview-area {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 16px;
+    padding: 20px;
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.preview-area h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #333;
+}
+
+.preview-area p {
+    margin: 0;
+    font-size: 14px;
+    color: #555;
+    line-height: 1.5;
+}
+
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: auto;
+}
+
+.save-btn {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.save-btn:hover {
+    opacity: 0.9;
+}
+
+.reset-btn {
+    background: #f0f0f0;
+    color: #666;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.reset-btn:hover {
+    background: #e0e0e0;
+}
+
+/* ================= QQ 应用样式 ================= */
+.qq-app {
+    width: 100%;
+    height: 100%;
+    background: var(--qq-bg);
+    display: flex;
+    flex-direction: column;
+    z-index: 200;
+    /* QQ 进入页面：取消从下往上滑出 */
+    animation: none;
+    position: relative;
+    overflow: hidden;
+}
+
+/* QQ：统一圆角、柔和阴影、低对比边框 */
+.qq-app * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* 顶部栏 */
+.qq-header {
+    /* 头部改成“干净的浅色玻璃条”，去掉强烈渐变 */
+    background: var(--qq-surface);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+
+    /*
+      适配手机刘海/打孔：
+      - 使用 env(safe-area-inset-top) 给顶部留出安全区
+      - 额外 +10px，确保打孔不会压到标题
+    */
+    padding-top: max(
+  calc(env(safe-area-inset-top, 0px) + 12px),
+  30px
+);
+    padding-left: 14px;
+    padding-right: 14px;
+    padding-bottom: 10px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    color: var(--text-color);
+    border-bottom: 1px solid var(--qq-border);
+    flex-shrink: 0;
+}
+
+.qq-header-left, .qq-header-actions {
+    width: 40px;
+    display: flex;
+    align-items: center;
+}
+
+/* 仅缩小左侧返回 SVG，不影响右侧 + 号 */
+.qq-header-left svg {
+    width: 17px;
+    height: 17px;
+}
+
+.qq-header-left {
+    justify-content: flex-start;
+    cursor: pointer;
+}
+
+.qq-header-actions {
+    justify-content: flex-end;
+}
+
+.qq-title {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
+.qq-action-btn {
+    /* 右侧 + 号：用 SVG，不受字体影响 */
+    cursor: pointer;
+
+    /* 和返回键保持一致（返回 SVG 用的是 currentColor，继承自 .qq-header 的 color） */
+    color: var(--text-color);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 17px;
+    height: 17px;
+}
+
+/* 让 SVG 尺寸固定，线条渲染更干净 */
+.qq-action-btn svg {
+    width: 17px;
+    height: 17px;
+    display: block;
+}
+
+/* 搜索栏 */
+.qq-search-container {
+    background: transparent;
+    padding: 10px 14px 12px;
+    border-bottom: none;
+    flex-shrink: 0;
+}
+
+.qq-search-bar {
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid var(--qq-border);
+    border-radius: 999px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--qq-muted);
+    font-size: 13px;
+    box-shadow: 0 8px 20px rgba(32, 33, 48, 0.06);
+}
+
+/* 消息列表 */
+.qq-message-list {
+    flex: 1;
+    overflow-y: auto;
+    background: transparent;
+    padding: 6px 10px 86px; /* 预留底部 tab */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.qq-message-list::-webkit-scrollbar {
+    display: none;
+}
+
+.qq-contacts-page {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 12px 86px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.qq-contacts-page::-webkit-scrollbar {
+    display: none;
+}
+
+.qq-contacts-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(225, 235, 255, 0.85) 100%);
+    border: 1px solid rgba(168, 184, 255, 0.4);
+}
+
+.qq-contacts-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text-color);
+}
+
+.qq-contacts-sub {
+    font-size: 12px;
+    color: rgba(40, 40, 55, 0.6);
+    margin-top: 4px;
+}
+
+.qq-contacts-hero-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    color: rgba(78, 90, 190, 0.95);
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px dashed rgba(78, 90, 190, 0.35);
+}
+
+.qq-contacts-quick {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.qq-quick-item {
+    border: 1px solid var(--qq-border);
+    background: rgba(255, 255, 255, 0.75);
+    border-radius: 16px;
+    padding: 10px 6px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-color);
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.qq-quick-item:active {
+    transform: scale(0.98);
+}
+
+.qq-quick-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(168, 184, 255, 0.18);
+    color: rgba(78, 90, 190, 0.95);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.qq-quick-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(40, 40, 55, 0.7);
+}
+
+.qq-contacts-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.qq-contacts-section-title {
+    font-size: 12px;
+    font-weight: 800;
+    color: rgba(40, 40, 55, 0.6);
+    padding: 2px 6px;
+}
+
+.qq-contacts-list {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid var(--qq-border);
+    border-radius: 18px;
+    overflow: hidden;
+}
+
+.qq-contact-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(30, 30, 40, 0.06);
+    cursor: pointer;
+}
+
+.qq-contact-row:last-child {
+    border-bottom: none;
+}
+
+.qq-contact-row:active {
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.qq-contact-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    background-color: #eef0ff;
+    border: 1px solid rgba(40, 40, 55, 0.06);
+    flex-shrink: 0;
+}
+
+.qq-contact-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.qq-contact-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.qq-contact-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.qq-contact-tag {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 999px;
+    background: rgba(168, 184, 255, 0.25);
+    color: rgba(78, 90, 190, 0.9);
+    font-weight: 700;
+}
+
+.qq-contact-desc {
+    margin-top: 4px;
+    font-size: 12px;
+    color: rgba(40, 40, 55, 0.55);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.qq-contact-arrow {
+    font-size: 16px;
+    color: rgba(40, 40, 55, 0.35);
+}
+
+.qq-contacts-empty {
+    text-align: center;
+    color: rgba(40, 40, 55, 0.4);
+    font-size: 13px;
+    padding: 30px 0;
+}
+
+.qq-message-item {
+    display: flex;
+    padding: 12px 12px;
+    gap: 12px;
+    cursor: pointer;
+    position: relative;
+
+    /* 卡片化：圆角 + 轻边框 + 轻阴影 */
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid var(--qq-border);
+    border-radius: 18px;
+    box-shadow: 0 10px 26px rgba(32, 33, 48, 0.06);
+
+    margin: 10px 4px;
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.qq-message-item:active {
+    transform: scale(0.99);
+    background: rgba(255, 255, 255, 0.92);
+}
+
+/* 置顶联系人样式 */
+.qq-message-item.is-pinned {
+    background: linear-gradient(135deg, rgba(168, 184, 255, 0.15) 0%, rgba(207, 231, 255, 0.2) 100%);
+    border-color: rgba(168, 184, 255, 0.35);
+}
+
+.qq-message-item.is-pinned:active {
+    background: linear-gradient(135deg, rgba(168, 184, 255, 0.22) 0%, rgba(207, 231, 255, 0.28) 100%);
+}
+
+/* 置顶图标指示器 */
+.qq-pin-indicator {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: rgba(168, 184, 255, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(78, 90, 190, 0.8);
+}
+
+.qq-pin-indicator svg {
+    width: 10px;
+    height: 10px;
+}
+
+.qq-item-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 16px; /* 改成可爱圆角头像 */
+    background-color: #eef0ff;
+    background-size: cover;
+    background-position: center;
+    flex-shrink: 0;
+    border: 1px solid rgba(40, 40, 55, 0.06);
+}
+
+.qq-item-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    min-width: 0; /* 允许文本截断 */
+}
+
+.qq-item-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.qq-item-name {
+    font-size: 15px;
+    color: var(--text-color);
+    font-weight: 700;
+}
+
+.qq-item-time {
+    font-size: 11px;
+    color: rgba(40, 40, 55, 0.45);
+}
+
+.qq-item-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.qq-item-preview {
+    font-size: 12px;
+    color: rgba(40, 40, 55, 0.55);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    padding-right: 10px;
+}
+
+.qq-item-badge {
+    background: rgba(168, 184, 255, 0.9);
+    color: #ffffff;
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    min-width: 18px;
+    text-align: center;
+    box-shadow: 0 6px 14px rgba(168, 184, 255, 0.25);
+}
+
+/* 底部导航 */
+.qq-tab-bar {
+    /* 底部改成悬浮胶囊，圆角更可爱 */
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 10px;
+
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+
+    border: 1px solid var(--qq-border);
+    height: 58px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-shrink: 0;
+
+    border-radius: 22px;
+    box-shadow: 0 14px 32px rgba(32, 33, 48, 0.10);
+}
+
+.qq-tab-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    color: #999;
+    cursor: pointer;
+    flex: 1;
+}
+
+.qq-tab-item.active {
+    color: rgba(78, 90, 190, 0.95);
+}
+
+.qq-tab-item.is-disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.qq-tab-item.active svg {
+    /* 激活状态下图标颜色 */
+    fill: rgba(78, 90, 190, 0.95);
+    stroke: rgba(78, 90, 190, 0.95);
+}
+
+/* 对于填充型图标（如消息），active时可能需要特殊处理，这里统一用 CSS 控制颜色 */
+.qq-tab-item.active svg[fill="none"] {
+    fill: none; /* 保持无填充 */
+}
+
+.qq-tab-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.qq-tab-label {
+    font-size: 10px;
+    margin-top: 2px;
+    font-weight: 600;
+}
+
+.empty-state {
+    display: flex;
+    justify-content: center;
+    padding-top: 100px;
+    color: #ccc;
+    font-size: 14px;
+}
+
+/* ================= QQ 创建角色 / 聊天页样式（原型） ================= */
+.qq-create-role,
+.qq-chat-page {
+    width: 100%;
+    height: 100%;
+    background: var(--qq-bg);
+    display: flex;
+    flex-direction: column;
+    --qq-inputbar-height: 56px;
+    z-index: 200;
+    /* QQ 子页面：取消从下往上滑出 */
+    animation: none;
+    position: relative;
+    /* 禁止整体滚动，只允许中间列表滚动 */
+    overflow: hidden;
+    min-height: 0;
+}
+
+.qq-create-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.qq-create-body::-webkit-scrollbar {
+    display: none;
+}
+
+.qq-form {
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid var(--qq-border);
+    border-radius: 18px;
+    padding: 14px;
+    box-shadow: 0 10px 26px rgba(32, 33, 48, 0.06);
+}
+
+.qq-form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-color);
+    margin: 10px 0 8px;
+}
+
+.qq-form-input,
+.qq-form-textarea {
+    width: 100%;
+    border: 1px solid var(--qq-border);
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 14px;
+    padding: 12px 12px;
+    font-size: 13px;
+    outline: none;
+    color: var(--text-color);
+}
+
+.qq-form-textarea {
+    min-height: 110px;
+    resize: none;
+}
+
+.qq-primary-btn {
+    width: 100%;
+    margin-top: 14px;
+    border: none;
+    border-radius: 14px;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 800;
+    color: #fff;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+}
+
+.qq-primary-btn:active {
+    opacity: 0.9;
+}
+
+.qq-chat-body {
+    /* Message List：占满剩余空间，且只有它可以滚动 */
+    flex: 1 1 auto;
+    overflow-y: auto;
+    min-height: 0;
+
+    padding: 16px;
+    padding-bottom: calc(2px + var(--qq-inputbar-height));
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    /* 键盘弹出时的过渡 */
+    transition: padding-bottom 0.25s ease-out;
+    /* 确保可以滚动到底部 */
+    overscroll-behavior: contain;
+}
+
+.qq-chat-body::-webkit-scrollbar {
+    display: none;
+}
+
+.qq-chat-role-card {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid var(--qq-border);
+    border-radius: 18px;
+    padding: 12px;
+    box-shadow: 0 10px 26px rgba(32, 33, 48, 0.06);
+}
+
+.qq-chat-avatar {
+    width: 54px;
+    height: 54px;
+    border-radius: 18px;
+    background-size: cover;
+    background-position: center;
+    background-color: #eef0ff;
+    border: 1px solid rgba(40, 40, 55, 0.06);
+    flex-shrink: 0;
+}
+
+.qq-chat-meta {
+    min-width: 0;
+    flex: 1;
+}
+
+.qq-chat-name {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text-color);
+    margin-bottom: 6px;
+}
+
+.qq-chat-setting {
+    font-size: 12px;
+    color: rgba(40, 40, 55, 0.65);
+    line-height: 1.4;
+    white-space: pre-wrap;
+}
+
+.qq-chat-tip {
+    margin-top: 14px;
+    font-size: 12px;
+    color: rgba(40, 40, 55, 0.55);
+    text-align: center;
+}
+
+.qq-chat-inputbar {
+    flex-shrink: 0;
+    display: flex;
+    gap: 10px;
+    padding: 12px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    min-height: var(--qq-inputbar-height);
+    border-top: 1px solid var(--qq-border);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    /* 保持在底部 */
+    position: relative;
+    z-index: 10;
+    align-items: flex-end;
+}
+
+.qq-chat-tools {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(var(--qq-inputbar-height) + env(safe-area-inset-bottom, 0px));
+    padding: 0 10px;
+    background: rgba(255, 255, 255, 0.95);
+    overflow: hidden;
+    flex-shrink: 0;
+    z-index: 11;
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(8px);
+    pointer-events: none;
+    transition: max-height 0.25s ease, opacity 0.25s ease, transform 0.25s ease;
+}
+
+.qq-chat-tools.is-open {
+    max-height: 220px;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-top: 1px solid var(--qq-border);
+}
+
+.qq-chat-tools-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px 8px;
+    padding: 6px 2px;
+}
+
+.qq-tool-item {
+    border: none;
+    background: transparent;
+    border-radius: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.qq-tool-item:active {
+    transform: scale(0.9);
+}
+
+.qq-tool-item.is-active .qq-tool-icon {
+    box-shadow: 0 6px 16px rgba(148, 166, 255, 0.35);
+    border-color: rgba(148, 166, 255, 0.45);
+}
+
+.qq-tool-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    color: #2f2f36;
+    box-shadow: 0 4px 12px rgba(168, 184, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.qq-tool-icon svg {
+    width: 18px;
+    height: 18px;
+}
+
+.qq-tool-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(40, 40, 55, 0.7);
+}
+
+.qq-emoji-panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 300px;
+    max-height: 320px;
+    background: rgba(255, 255, 255, 0.98);
+    border-top: 1px solid rgba(30, 30, 40, 0.08);
+    padding: 8px 10px calc(12px + env(safe-area-inset-bottom, 0px));
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    z-index: 12;
+    --qq-emoji-size: 58px;
+}
+
+.qq-emoji-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 0 4px 6px;
+}
+
+.qq-emoji-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(40, 40, 55, 0.75);
+}
+
+.qq-emoji-header-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.qq-emoji-header-btn {
+    border: none;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.8);
+    color: rgba(80, 80, 90, 0.9);
+    cursor: pointer;
+}
+
+.qq-emoji-header-btn.ghost {
+    background: rgba(220, 220, 230, 0.4);
+    color: rgba(70, 70, 80, 0.8);
+}
+
+.qq-emoji-header-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.qq-emoji-url-box {
+    padding: 6px 4px 2px;
+}
+
+.qq-emoji-url-text {
+    width: 100%;
+    min-height: 64px;
+    resize: none;
+    border-radius: 10px;
+    border: 1px solid rgba(30, 30, 40, 0.12);
+    padding: 6px 8px;
+    font-size: 11px;
+    outline: none;
+    background: rgba(255, 255, 255, 0.9);
+    color: rgba(40, 40, 55, 0.85);
+}
+
+.qq-emoji-url-actions {
+    margin-top: 6px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.qq-emoji-url-btn {
+    border: none;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #fff;
+    background: rgba(143, 152, 235, 0.85);
+    cursor: pointer;
+}
+
+.qq-emoji-url-btn.secondary {
+    background: rgba(190, 194, 220, 0.6);
+    color: rgba(40, 40, 55, 0.8);
+}
+
+.qq-emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    padding: 2px 4px 8px;
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: none;
+    position: relative;
+    z-index: 12;
+    align-content: start;
+}
+
+.qq-emoji-grid::-webkit-scrollbar {
+    display: none;
+}
+
+.qq-emoji-item {
+    border: none;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    justify-content: center;
+    width: var(--qq-emoji-size);
+    height: auto;
+    touch-action: manipulation;
+}
+
+.qq-emoji-item.is-add {
+    border: 1px dashed rgba(90, 100, 180, 0.55);
+    border-radius: 12px;
+    width: var(--qq-emoji-size);
+    height: var(--qq-emoji-size);
+    color: rgba(90, 100, 180, 0.85);
+    background: rgba(245, 246, 255, 0.6);
+}
+
+.qq-emoji-item.is-dragging {
+    opacity: 0.5;
+    transform: scale(0.96);
+}
+
+.qq-emoji-item.is-drop-target:not(.is-dragging) {
+    outline: 2px dashed rgba(255, 140, 170, 0.75);
+    outline-offset: -3px;
+    border-radius: 12px;
+}
+
+.qq-emoji-item.is-move-source:not(.is-dragging) {
+    outline: 2px dashed rgba(255, 140, 170, 0.75);
+    outline-offset: -3px;
+    border-radius: 12px;
+}
+
+.qq-emoji-item.is-selected:not(.is-dragging) {
+    outline: 2px solid rgba(255, 140, 170, 0.7);
+    outline-offset: -3px;
+    border-radius: 12px;
+}
+
+.qq-emoji-upload-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    padding: 4px 2px;
+}
+
+.qq-emoji-upload-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: rgba(40, 40, 55, 0.75);
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(30, 30, 40, 0.08);
+    border-radius: 999px;
+    padding: 4px 10px;
+}
+
+.qq-emoji-upload-option input {
+    accent-color: #ff8db0;
+}
+
+.qq-emoji-add {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.qq-emoji-item:active {
+    transform: scale(0.94);
+}
+
+.qq-emoji-thumb {
+    width: var(--qq-emoji-size);
+    height: var(--qq-emoji-size);
+    border-radius: 12px;
+    object-fit: cover;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(30, 30, 40, 0.08);
+    box-shadow: 0 4px 10px rgba(148, 166, 255, 0.12);
+}
+
+.qq-emoji-name {
+    font-size: 9px;
+    color: rgba(40, 40, 55, 0.7);
+    text-align: center;
+    max-width: var(--qq-emoji-size);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.qq-emoji-empty {
+    text-align: center;
+    padding: 18px 0 12px;
+    font-size: 11px;
+    color: rgba(40, 40, 55, 0.5);
+}
+
+.qq-emoji-inline {
+    width: 22px;
+    height: 22px;
+    object-fit: cover;
+    border-radius: 6px;
+    vertical-align: middle;
+    margin: 0 1px;
+}
+
+.qq-emoji-inline.is-only {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    display: block;
+}
+
+.qq-emoji-popover {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 14px;
+    padding: 8px;
+    box-shadow: 0 10px 20px rgba(32, 33, 48, 0.16);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    z-index: 13;
+}
+
+.qq-emoji-popover-actions {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+}
+
+.qq-emoji-popover-btn {
+    border: none;
+    border-radius: 999px;
+    padding: 4px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.7);
+    color: rgba(70, 70, 80, 0.9);
+    cursor: pointer;
+}
+
+.qq-emoji-popover-btn.danger {
+    background: rgba(255, 210, 210, 0.7);
+    color: rgba(150, 60, 60, 0.9);
+}
+
+.qq-chat-tool-toggle {
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    border: 1px solid var(--qq-border);
+    background: rgba(255, 255, 255, 0.9);
+    color: rgba(78, 90, 190, 0.95);
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease, background 0.15s ease;
+    flex-shrink: 0;
+}
+
+.qq-chat-tool-toggle:active {
+    transform: scale(0.95);
+}
+
+.qq-chat-tool-toggle.is-open {
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.qq-chat-plus {
+    display: block;
+    line-height: 1;
+    transition: transform 0.2s ease;
+}
+
+.qq-chat-tool-toggle.is-open .qq-chat-plus {
+    transform: rotate(45deg);
+}
+
+.qq-chat-input {
+    flex: 1;
+    border: 1px solid var(--qq-border);
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 999px;
+    padding: 10px 12px;
+    font-size: 13px;
+    outline: none;
+    color: var(--text-color);
+}
+
+.qq-chat-send {
+    border: none;
+    border-radius: 999px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #ffffff;
+    background: rgba(163, 176, 237, 0.7);
+}
+
+.qq-chat-send.is-input {
+    background: rgba(143, 152, 235, 0.8);
+}
+
+
+
+/* ================= QQ 聊天设置页 ================= */
+.qq-chat-settings-page {
+    width: 100%;
+    height: 100%;
+    background: var(--qq-bg);
+    display: flex;
+    flex-direction: column;
+    z-index: 200;
+    animation: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.qq-chat-settings-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 12px 18px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.qq-chat-settings-body::-webkit-scrollbar {
+    display: none;
+}
+
+/* ================= 预设页 ================= */
+.qq-preset-page {
+    width: 100%;
+    height: 100%;
+    background: var(--qq-bg);
+    display: flex;
+    flex-direction: column;
+    z-index: 200;
+    animation: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.qq-preset-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 12px 18px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.qq-preset-body::-webkit-scrollbar {
+    display: none;
+}
+
+.qq-chat-settings-card {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid var(--qq-border);
+    border-radius: 18px;
+    padding: 12px;
+    box-shadow: 0 10px 26px rgba(32, 33, 48, 0.06);
+    margin-bottom: 12px;
+}
+
+.qq-chat-settings-avatar {
+    width: 54px;
+    height: 54px;
+    border-radius: 18px;
+    background-size: cover;
+    background-position: center;
+    background-color: #eef0ff;
+    border: 1px solid rgba(40, 40, 55, 0.06);
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.qq-chat-settings-meta {
+    min-width: 0;
+    flex: 1;
+}
+
+.qq-chat-settings-name {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text-color);
+    margin-bottom: 4px;
+}
+
+.qq-chat-settings-sub {
+    font-size: 12px;
+    color: rgba(40, 40, 55, 0.55);
+    line-height: 1.4;
+}
+
+.qq-setting-group {
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid var(--qq-border);
+    border-radius: 18px;
+    padding: 12px;
+    box-shadow: 0 10px 26px rgba(32, 33, 48, 0.06);
+    margin: 12px 0;
+}
+
+.qq-setting-title {
+    font-size: 12px;
+    font-weight: 900;
+    color: rgba(40, 40, 55, 0.70);
+    margin-bottom: 10px;
+    letter-spacing: 0.4px;
+}
+
+.qq-setting-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-top: 1px solid rgba(30, 30, 40, 0.06);
+    gap: 12px;
+}
+
+.qq-setting-item:first-of-type {
+    border-top: none;
+    padding-top: 0;
+}
+
+.qq-setting-item.column {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.qq-setting-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.qq-setting-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.qq-setting-btn {
+    border: 1px solid var(--qq-border);
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--text-color);
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.qq-setting-btn.secondary {
+    background: rgba(40, 40, 55, 0.06);
+}
+
+.qq-setting-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.qq-setting-btn.danger {
+    background: #ff3b30;
+    color: #fff;
+    border-color: #ff3b30;
+}
+
+.qq-setting-btn.danger:hover {
+    background: #e0352c;
+}
+
+/* 危险区域样式 */
+.qq-danger-zone {
+    margin-top: 20px;
+    border-color: rgba(255, 59, 48, 0.2);
+}
+
+.qq-setting-textarea {
+    width: 100%;
+    min-height: 110px;
+    border: 1px solid var(--qq-border);
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 14px;
+    padding: 12px 12px;
+    font-size: 12px;
+    outline: none;
+    color: var(--text-color);
+    resize: none;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    line-height: 1.5;
+}
+
+.qq-setting-hint {
+    margin-top: 8px;
+    font-size: 11px;
+    color: rgba(40, 40, 55, 0.55);
+    line-height: 1.4;
+}
+
+.qq-bubble-preview {
+    margin-top: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid var(--qq-border);
+    border-radius: 16px;
+}
+
+.qq-bubble-preview .qq-message-row {
+    margin-bottom: 10px;
+}
+
+.qq-bubble-preview .qq-message-row:last-child {
+    margin-bottom: 0;
+}
+
+.qq-bubble-tools {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.qq-preset-name-input {
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    padding: 0 10px;
+    outline: none;
+    background: #fff;
+    color: #111;
+    font-size: 12px;
+}
+
+.qq-preset-list {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.qq-preset-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 10px;
+    border: 1px solid rgba(30, 30, 40, 0.06);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.qq-preset-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.qq-header-save {
+    border: none;
+    border-radius: 10px; /* 圆角方形 */
+    width: 44px;         /* 允许“保存”横排显示 */
+    height: 28px;
+    padding: 0;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1;
+    color: #ffffff;      /* 保存二字改成白色 */
+    cursor: pointer;
+    background: #c7d2ff; /* 更浅的蓝色，不要渐变 */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap; /* 横排 */
+}
+
+.qq-header-save:active {
+    opacity: 0.9;
+}
+
+/* ================= 世界书页面 ================= */
+.worldbook-page {
+    width: 100%;
+    height: 100%;
+    background: var(--qq-bg);
+    display: flex;
+    flex-direction: column;
+    z-index: 200;
+    position: relative;
+    overflow: hidden;
+}
+
+.worldbook-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.worldbook-action-btn {
+    border: none;
+    border-radius: 10px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(135deg, #a8b8ff 0%, #c7d2ff 100%);
+    cursor: pointer;
+}
+
+.worldbook-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 12px 18px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.worldbook-body::-webkit-scrollbar {
+    display: none;
+}
+
+.worldbook-shelf {
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid var(--qq-border);
+    border-radius: 18px;
+    padding: 12px;
+    box-shadow: 0 10px 26px rgba(32, 33, 48, 0.06);
+}
+
+.worldbook-shelf-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.worldbook-shelf-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--text-color);
+}
+
+.worldbook-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.worldbook-item {
+    border: 1px solid rgba(30, 30, 40, 0.06);
+    border-radius: 14px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.worldbook-item.active {
+    border-color: rgba(120, 130, 200, 0.4);
+    box-shadow: 0 8px 18px rgba(120, 130, 180, 0.18);
+    transform: translateY(-1px);
+}
+
+.worldbook-item-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text-color);
+    margin-bottom: 4px;
+}
+
+.worldbook-item-meta {
+    font-size: 11px;
+    color: rgba(40, 40, 55, 0.55);
+}
+
+.worldbook-empty {
+    padding: 16px;
+    text-align: center;
+    font-size: 12px;
+    color: rgba(40, 40, 55, 0.5);
+}
+
+.worldbook-detail {
+    margin-top: 14px;
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid var(--qq-border);
+    border-radius: 18px;
+    padding: 12px;
+    box-shadow: 0 10px 26px rgba(32, 33, 48, 0.06);
+}
+
+.worldbook-detail-empty {
+    text-align: center;
+    color: rgba(40, 40, 55, 0.5);
+    font-size: 12px;
+}
+
+.worldbook-detail-header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.worldbook-title-input {
+    width: 100%;
+    border: 1px solid var(--qq-border);
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-weight: 800;
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--text-color);
+}
+
+.worldbook-detail-meta {
+    font-size: 11px;
+    color: rgba(40, 40, 55, 0.55);
+    margin-top: 6px;
+}
+
+.worldbook-detail-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.worldbook-mini-btn {
+    border: 1px solid var(--qq-border);
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+.worldbook-mini-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.worldbook-mini-btn.danger {
+    background: #ffe6f2;
+    border-color: #ffcde3;
+    color: var(--text-color);
+}
+
+.worldbook-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.worldbook-group {
+    border: 1px solid rgba(30, 30, 40, 0.08);
+    border-radius: 14px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.92);
+}
+
+.worldbook-group-header {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.worldbook-group-title {
+    border: 1px solid var(--qq-border);
+    border-radius: 12px;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.96);
+    color: var(--text-color);
+}
+
+.worldbook-group-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.worldbook-entries {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.worldbook-entry {
+    border: 1px solid rgba(30, 30, 40, 0.08);
+    border-radius: 12px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.worldbook-entry-top {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.worldbook-entry-name {
+    border: 1px solid var(--qq-border);
+    border-radius: 10px;
+    padding: 8px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.96);
+    color: var(--text-color);
+}
+
+.worldbook-entry-flags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 11px;
+    color: rgba(40, 40, 55, 0.7);
+}
+
+.worldbook-flag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.worldbook-entry-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.worldbook-entry-keywords {
+    flex: 1;
+    border: 1px solid var(--qq-border);
+    border-radius: 10px;
+    padding: 8px 10px;
+    font-size: 12px;
+    background: rgba(255, 255, 255, 0.96);
+    color: var(--text-color);
+}
+
+.worldbook-entry-content {
+    width: 100%;
+    min-height: 90px;
+    border: 1px solid var(--qq-border);
+    border-radius: 12px;
+    padding: 10px;
+    font-size: 12px;
+    background: rgba(255, 255, 255, 0.96);
+    color: var(--text-color);
+    resize: none;
+    line-height: 1.5;
+    font-family: inherit;
+}
+
+.worldbook-entry-empty {
+    font-size: 12px;
+    color: rgba(40, 40, 55, 0.5);
+    text-align: center;
+    padding: 6px 0;
+}
+
+.worldbook-bind-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.worldbook-bind-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border: 1px solid rgba(30, 30, 40, 0.08);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.9);
+    font-size: 12px;
+    color: var(--text-color);
+}
+
+.worldbook-bind-name {
+    flex: 1;
+    font-weight: 700;
+}
+
+.worldbook-bind-meta {
+    font-size: 11px;
+    color: rgba(40, 40, 55, 0.6);
+}
+
+.worldbook-bind-empty {
+    font-size: 12px;
+    color: rgba(40, 40, 55, 0.5);
+    padding: 6px 0;
+}
+
+/* ================= QQ 头像上传弹窗 - 简洁可爱风格 ================= */
+.qq-avatar-modal-mask {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.qq-avatar-modal {
+    width: calc(100% - 56px);
+    max-width: 260px;
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9ff 100%);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 
+        0 20px 60px rgba(120, 130, 180, 0.25),
+        0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+    text-align: center;
+    animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalPop {
+    from { 
+        opacity: 0; 
+        transform: scale(0.8) translateY(20px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: scale(1) translateY(0); 
+    }
+}
+
+.qq-avatar-modal-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.qq-avatar-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: none;
+    border-radius: 16px;
+    padding: 14px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.qq-avatar-btn.local {
+    background: linear-gradient(135deg, #a8b8ff 0%, #c7d2ff 100%);
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(168, 184, 255, 0.4);
+}
+
+.qq-avatar-btn.local:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(168, 184, 255, 0.5);
+}
+
+.qq-avatar-btn.local:active {
+    transform: translateY(0);
+}
+
+.qq-avatar-modal-divider {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+    color: #b0b0c0;
+    font-size: 12px;
+}
+
+.qq-avatar-modal-divider::before,
+.qq-avatar-modal-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #d8d8e8, transparent);
+}
+
+.qq-avatar-modal-divider span {
+    padding: 0 12px;
+}
+
+.qq-avatar-url-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.qq-avatar-url-input {
+    flex: 1;
+    height: 44px;
+    border-radius: 14px;
+    border: 2px solid #e8e8f0;
+    padding: 0 14px;
+    font-size: 13px;
+    outline: none;
+    background: #fff;
+    color: #3d3d5c;
+    transition: all 0.2s ease;
+}
+
+.qq-avatar-url-input:focus {
+    border-color: #a8b8ff;
+    box-shadow: 0 0 0 4px rgba(168, 184, 255, 0.15);
+}
+
+.qq-avatar-url-input::placeholder {
+    color: #b8b8c8;
+}
+
+.qq-avatar-url-confirm {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(135deg, #a8b8ff 0%, #c7d2ff 100%);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 6px 16px rgba(168, 184, 255, 0.35);
+}
+
+.qq-avatar-url-confirm:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(168, 184, 255, 0.45);
+}
+
+.qq-avatar-url-confirm:active {
+    transform: scale(0.98);
+}
+
+/* ================= QQ 聊天消息气泡样式 ================= */
+.qq-messages-container {
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-bottom: 2px;
+}
+
+.qq-message-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    max-width: 100%;
+}
+
+.qq-message-row.me {
+    flex-direction: row-reverse;
+}
+
+.qq-msg-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    background-size: cover;
+    background-position: center;
+    background-color: #eef0ff;
+    flex-shrink: 0;
+    border: 1px solid rgba(40, 40, 55, 0.06);
+}
+
+.qq-msg-avatar.me {
+    background-color: #e8f4ff;
+}
+
+.qq-bubble {
+    max-width: 70%;
+    padding: 10px 14px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.5;
+    word-wrap: break-word;
+    word-break: break-word;
+    position: relative;
+}
+
+.qq-bubble.ai {
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--text-color);
+    border: 1px solid var(--qq-border);
+    border-top-left-radius: 6px;
+    box-shadow: 0 4px 12px rgba(32, 33, 48, 0.06);
+}
+
+.qq-bubble.me {
+    background: linear-gradient(135deg, #a8b8ff 0%, #c0ccff 100%);
+    color: #fff;
+    border-top-right-radius: 6px;
+    box-shadow: 0 4px 16px rgba(168, 184, 255, 0.35);
+}
+
+.qq-bubble-content {
+    white-space: pre-wrap;
+}
+
+/* 打字指示器动画 */
+.qq-bubble.loading {
+    padding: 12px 18px;
+}
+
+.qq-typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.qq-typing-indicator span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(40, 40, 55, 0.3);
+    animation: typingBounce 1.4s infinite ease-in-out both;
+}
+
+.qq-typing-indicator span:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.qq-typing-indicator span:nth-child(2) {
+    animation-delay: -0.16s;
+}
+
+.qq-typing-indicator span:nth-child(3) {
+    animation-delay: 0s;
+}
+
+@keyframes typingBounce {
+    0%, 80%, 100% {
+        transform: scale(0.6);
+        opacity: 0.4;
+    }
+    40% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* API 未配置警告弹窗 */
+.qq-api-warning {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    animation: fadeIn 0.2s ease;
+}
+
+.qq-api-warning-content {
+    width: calc(100% - 48px);
+    max-width: 280px;
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9ff 100%);
+    border-radius: 20px;
+    padding: 24px 20px;
+    box-shadow: 
+        0 20px 60px rgba(120, 130, 180, 0.25),
+        0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+    text-align: center;
+    animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.qq-api-warning-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+}
+
+.qq-api-warning-text {
+    margin-bottom: 20px;
+}
+
+.qq-api-warning-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 8px;
+}
+
+.qq-api-warning-desc {
+    font-size: 13px;
+    color: rgba(40, 40, 55, 0.65);
+    line-height: 1.5;
+}
+
+.qq-api-warning-btn {
+    width: 100%;
+    border: none;
+    border-radius: 14px;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    background: linear-gradient(135deg, #a8b8ff 0%, #c7d2ff 100%);
+    box-shadow: 0 8px 20px rgba(168, 184, 255, 0.4);
+    transition: all 0.2s ease;
+}
+
+.qq-api-warning-actions {
+    display: grid;
+    gap: 10px;
+}
+
+.qq-api-warning-btn.secondary {
+    background: rgba(40, 40, 55, 0.1);
+    color: #3a3f6b;
+    box-shadow: none;
+}
+
+.qq-api-warning-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(168, 184, 255, 0.5);
+}
+
+.qq-api-warning-btn:active {
+    transform: translateY(0);
+}
+
+/* 转账弹窗 */
+.qq-transfer-mask {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 125;
+    padding: 20px;
+}
+
+.qq-transfer-modal {
+    width: min(360px, 100%);
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 18px;
+    padding: 18px 16px 16px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2);
+    animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.qq-transfer-modal-title {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 800;
+    color: #1f232b;
+}
+
+.qq-transfer-target {
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+}
+
+.qq-transfer-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background-size: cover;
+    background-position: center;
+    background-color: #e6e8ee;
+}
+
+.qq-transfer-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #2b2f3a;
+}
+
+.qq-transfer-input-block {
+    margin-top: 16px;
+    display: grid;
+    gap: 10px;
+}
+
+.qq-transfer-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(43, 47, 58, 0.7);
+}
+
+.qq-transfer-amount-input {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #f7f8fb;
+}
+
+.qq-transfer-currency {
+    font-size: 20px;
+    font-weight: 800;
+    color: #2a2f3a;
+}
+
+.qq-transfer-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 20px;
+    font-weight: 800;
+    color: #2a2f3a;
+    outline: none;
+}
+
+.qq-transfer-note-input {
+    height: 42px;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    padding: 0 12px;
+    font-size: 13px;
+    outline: none;
+    background: #f7f8fb;
+    color: #2a2f3a;
+}
+
+.qq-transfer-error {
+    margin-top: 10px;
+    font-size: 12px;
+    color: #d23f31;
+    text-align: center;
+}
+
+.qq-transfer-actions {
+    margin-top: 16px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.qq-transfer-cancel,
+.qq-transfer-confirm {
+    border: none;
+    border-radius: 14px;
+    padding: 12px 0;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.qq-transfer-cancel {
+    background: rgba(40, 40, 55, 0.08);
+    color: rgba(40, 40, 55, 0.7);
+}
+
+.qq-transfer-confirm {
+    background: #07c160;
+    color: #fff;
+    box-shadow: 0 12px 26px rgba(7, 193, 96, 0.35);
+}
+
+/* 转账消息卡片 - 简洁可爱 */
+.qq-bubble.is-transfer {
+    background: transparent;
+    padding: 0;
+    box-shadow: none;
+    border: none;
+}
+
+.qq-transfer-card {
+    width: 210px;
+    border-radius: 18px;
+    overflow: hidden;
+    background: linear-gradient(160deg, #fff7fb 0%, #f1f6ff 100%);
+    box-shadow: 0 12px 26px rgba(255, 182, 193, 0.18);
+    border: 1px solid rgba(255, 182, 193, 0.35);
+    transition: all 0.3s ease;
+}
+
+/* 已收款状态 */
+.qq-transfer-card.is-received {
+    background: linear-gradient(160deg, #f0fff4 0%, #e6fffa 100%);
+    border-color: rgba(72, 187, 120, 0.3);
+    box-shadow: 0 12px 26px rgba(72, 187, 120, 0.15);
+    opacity: 0.85;
+}
+
+.qq-transfer-card.is-received .qq-transfer-symbol {
+    background: linear-gradient(135deg, #9ae6b4 0%, #68d391 100%);
+    box-shadow: 0 6px 12px rgba(72, 187, 120, 0.25);
+}
+
+.qq-transfer-card.is-received .qq-transfer-footer {
+    background: rgba(72, 187, 120, 0.15);
+    color: #2f855a;
+    border-top-color: rgba(72, 187, 120, 0.2);
+}
+
+/* 已退还状态 */
+.qq-transfer-card.is-refunded {
+    background: linear-gradient(160deg, #fff5f5 0%, #fed7d7 100%);
+    border-color: rgba(245, 101, 101, 0.3);
+    box-shadow: 0 12px 26px rgba(245, 101, 101, 0.15);
+    opacity: 0.85;
+}
+
+.qq-transfer-card.is-refunded .qq-transfer-symbol {
+    background: linear-gradient(135deg, #feb2b2 0%, #fc8181 100%);
+    box-shadow: 0 6px 12px rgba(245, 101, 101, 0.25);
+}
+
+.qq-transfer-card.is-refunded .qq-transfer-footer {
+    background: rgba(245, 101, 101, 0.15);
+    color: #c53030;
+    border-top-color: rgba(245, 101, 101, 0.2);
+}
+
+
+/* 第一层大格子 */
+.qq-transfer-body {
+    padding: 14px 14px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background-color: transparent;
+}
+
+/* 转账符号图标 */
+.qq-transfer-symbol {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #ffccd5 0%, #ffd8f0 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 6px 12px rgba(255, 182, 193, 0.35);
+}
+
+.qq-transfer-symbol svg {
+    width: 18px;
+    height: 18px;
+    stroke: none;
+    fill: #ffffff;
+}
+
+.qq-transfer-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.qq-transfer-amount {
+    font-size: 18px;
+    font-weight: 800;
+    color: #3a3a4a;
+}
+
+/* 备注行 */
+.qq-transfer-note {
+    font-size: 12.5px;
+    color: #7a7a8a;
+    font-weight: 600;
+}
+
+/* 第二层请收款横条 */
+.qq-transfer-footer {
+    padding: 6px 12px 7px;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: left;
+    background: rgba(255, 182, 193, 0.25);
+    color: #6a5a70;
+    border-top: 1px solid rgba(255, 182, 193, 0.25);
+}
+
+/* 隐藏原来的绿色顶条 */
+.qq-transfer-header {
+    display: none;
+}
+
+.qq-transfer-header-title {
+    display: none;
+}
+
+.qq-transfer-icon {
+    display: none;
+}
+
+
+/* 消息长按操作 */
+.qq-action-sheet-mask {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 120;
+    padding: 16px;
+}
+
+.qq-action-sheet {
+    width: 100%;
+    max-width: 360px;
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 18px;
+    padding: 14px;
+    box-shadow: 0 20px 60px rgba(120, 130, 180, 0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.qq-emoji-add-sheet {
+    margin-bottom: 36px;
+}
+
+.qq-action-sheet-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--text-color);
+    text-align: center;
+    padding-bottom: 4px;
+}
+
+.qq-action-sheet-btn,
+.qq-action-sheet-cancel {
+    border: none;
+    border-radius: 14px;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    background: rgba(168, 184, 255, 0.18);
+    color: #3a3f6b;
+}
+
+.qq-action-sheet-btn.danger {
+    background: rgba(255, 59, 48, 0.12);
+    color: #c62828;
+}
+
+.qq-action-sheet-btn.confirm {
+    background: rgba(7, 193, 96, 0.15);
+    color: #2f855a;
+}
+
+.qq-action-sheet-cancel {
+    background: rgba(40, 40, 55, 0.08);
+    color: rgba(40, 40, 55, 0.7);
+}
+
+.qq-add-hint {
+    font-size: 12px;
+    color: rgba(40, 40, 55, 0.6);
+    text-align: center;
+    padding: 4px 6px 2px;
+    line-height: 1.4;
+}
+
+/* 聊天页空状态 */
+.qq-chat-empty {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    color: rgba(40, 40, 55, 0.45);
+    font-size: 14px;
+}
+
+/* 发送按钮禁用状态 */
+.qq-chat-send:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 输入框禁用状态 */
+.qq-chat-input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* 转账方向切换 */
+.qq-transfer-direction-switch {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.qq-direction-btn {
+    background: #f0f0f5;
+    border: none;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #888;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.qq-direction-btn:first-child {
+    border-radius: 12px 0 0 12px;
+}
+
+.qq-direction-btn:last-child {
+    border-radius: 0 12px 12px 0;
+}
+
+.qq-direction-btn.active {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+/* ================= QQ 动态页面 ================= */
+.qq-moments-page {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--qq-bg);
+}
+
+.qq-moments-hero {
+    padding: 18px 16px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.qq-moments-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-color);
+}
+
+.qq-moments-sub {
+    font-size: 12px;
+    color: rgba(40, 40, 55, 0.55);
+    margin-top: 4px;
+}
+
+.qq-moments-hero-badge {
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    color: #3a3f6b;
+    background: rgba(168, 184, 255, 0.25);
+}
+
+.qq-moments-composer {
+    margin: 0 14px 14px;
+    padding: 12px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid var(--qq-border);
+    box-shadow: 0 10px 22px rgba(32, 33, 48, 0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.qq-moments-composer-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.qq-moments-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(40, 40, 55, 0.7);
+}
+
+.qq-moments-select {
+    border: 1px solid var(--qq-border);
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--text-color);
+}
+
+.qq-moments-select.small {
+    padding: 6px 8px;
+    font-size: 11px;
+}
+
+.qq-moments-textarea {
+    width: 100%;
+    min-height: 70px;
+    border-radius: 14px;
+    border: 1px solid rgba(30, 30, 40, 0.08);
+    padding: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+    resize: none;
+    background: rgba(248, 248, 252, 0.9);
+    color: var(--text-color);
+}
+
+.qq-moments-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.qq-moments-send {
+    border: none;
+    border-radius: 12px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    background: linear-gradient(135deg, #a8b8ff 0%, #c7d2ff 100%);
+    box-shadow: 0 8px 18px rgba(168, 184, 255, 0.35);
+}
+
+.qq-moments-send:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.qq-moments-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.qq-moments-list::-webkit-scrollbar {
+    display: none;
+}
+
+.qq-moment-card {
+    padding: 12px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid var(--qq-border);
+    box-shadow: 0 10px 22px rgba(32, 33, 48, 0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.qq-moment-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.qq-moment-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    background-size: cover;
+    background-position: center;
+    background-color: #eef0ff;
+    border: 1px solid rgba(40, 40, 55, 0.08);
+}
+
+.qq-moment-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.qq-moment-name {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text-color);
+}
+
+.qq-moment-time {
+    font-size: 11px;
+    color: rgba(40, 40, 55, 0.55);
+}
+
+.qq-moment-content {
+    font-size: 14px;
+    color: var(--text-color);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.qq-moment-comments {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.qq-moment-comment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 14px;
+    background: rgba(248, 248, 252, 0.9);
+    border: 1px solid rgba(30, 30, 40, 0.06);
+}
+
+.qq-moment-comment {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+.qq-moment-comment-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+    background-size: cover;
+    background-position: center;
+    background-color: #eef0ff;
+    border: 1px solid rgba(40, 40, 55, 0.08);
+}
+
+.qq-moment-comment-body {
+    flex: 1;
+}
+
+.qq-moment-comment-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 2px;
+}
+
+.qq-moment-comment-text {
+    font-size: 12px;
+    color: rgba(40, 40, 55, 0.8);
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+.qq-moment-comment-form {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 8px;
+    align-items: center;
+}
+
+.qq-moment-comment-input {
+    height: 34px;
+    border-radius: 12px;
+    border: 1px solid rgba(30, 30, 40, 0.08);
+    padding: 0 10px;
+    font-size: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--text-color);
+}
+
+.qq-moment-comment-send {
+    border: none;
+    border-radius: 10px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #3a3f6b;
+    background: rgba(168, 184, 255, 0.25);
+    cursor: pointer;
+}
+
+.qq-moment-comment-send:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.qq-moments-empty {
+    padding: 30px 16px;
+    text-align: center;
+    font-size: 13px;
+    color: rgba(40, 40, 55, 0.5);
+}
+
+/* ================= 论坛页面样式 ================= */
+.forum-page {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 18px 24px;
+    gap: 14px;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.forum-page::-webkit-scrollbar {
+    display: none;
+}
